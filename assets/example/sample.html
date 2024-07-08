@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Canvas Draw 2D - Example</title>
+
+        <script type="module">
+// Import draw function from module
+import drawFlower from './flower.module.js';
+
+window.addEventListener('load', () => {
+    const canvas = document.querySelector('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const ctx = canvas.getContext('2d');
+
+    let angle;
+
+    // The set root transform function resets the canvas transform.
+    // It can be called several times depending on the image.
+    const setRootTransform = () => {
+        const x = canvas.width * 0.5 + Math.cos(angle) * 50;
+        const y = canvas.height * 0.5 + Math.sin(angle) * 50;
+
+        ctx.setTransform(1, 0, 0, 1, x, y);
+    };
+
+    // Draw loop
+    const update = time => {
+        // Clear screen
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the flower
+        angle = time / 1000;
+
+        drawFlower(ctx, setRootTransform);
+
+        // Wait for the next frame
+        requestAnimationFrame(update);
+    };
+
+    requestAnimationFrame(update);
+});
+        </script>
+    </head>
+    <body>
+        <canvas></canvas>
+    </body>
+</html>

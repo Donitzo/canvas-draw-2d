@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Canvas Draw 2D</title>
+
+        <meta charset="utf-8" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+
+        <link href="images/favicon.png" rel="shortcut icon" type="image/ico" />
+
+        <link href="css/index.css" rel="stylesheet" type="text/css" />
+
+        <script type="module">
+import './js/objects/ellipse.class.js';
+import './js/objects/path.class.js';
+import './js/objects/rectangle.class.js';
+import './js/objects/scene.class.js';
+import './js/objects/text.class.js';
+
+import './js/app.class.js';
+        </script>
+    </head>
+    <body>
+        <canvas class="editor__canvas">
+            Canvas is not supported
+        </canvas>
+
+        <div class="tree__container">
+            <ul class="tree"></ul>
+        </div>
+
+        <div class="create">
+            <button class="create__import-json" title="Import from JSON" type="button"></button>
+            <button class="create__transform" title="Create transform (empty) object" type="button"></button>
+            <button class="create__path" title="Create path/polygon object" type="button"></button>
+            <button class="create__rectangle" title="Create rectangle object" type="button"></button>
+            <button class="create__ellipse" title="Create ellipse object" type="button"></button>
+            <button class="create__text" title="Create text object" type="button"></button>
+        </div>
+
+        <div class="edit">
+            <button class="edit__undo" title="Undo (ctrl+z)" type="button"></button>
+            <button class="edit__redo" title="Redo (ctrl+y)" type="button"></button>
+        </div>
+
+        <div class="properties">
+            <div class="properties__group-shape">
+                <label for="fill-color">Fill</label>
+                <input autocomplete="off" class="properties__fill-color" id="fill-color" title="Object fill color" type="color" />
+                <input autocomplete="off" class="properties__fill-color-string" pattern="#[a-fA-F\d]+"
+                    title="Object fill string (#RRGGBB or #RRGGBBAA)" type="text" value="#601070" />
+                <button class="properties__clear-fill" title="Clear object fill" type="button"></button>
+            </div>
+
+            <br />
+
+            <div class="properties__group-shape">
+                <label for="stroke-color">Stroke</label>
+                <input autocomplete="off" class="properties__stroke-color" id="stroke-color" title="Object stroke color" type="color" />
+                <input autocomplete="off" class="properties__stroke-color-string" pattern="#[a-fA-F\d]+"
+                    title="Object stroke string (#RRGGBB or #RRGGBBAA)" type="text" value="#9B37C1" />
+                <button class="properties__clear-stroke" title="Clear object stroke" type="button"></button>
+            </div>
+
+            <br />
+
+            <div class="properties__group-shape">
+                <label for="line-width">Line width</label>
+                <input autocomplete="off" class="properties__line-width" id="line-width"
+                    min="0" step="any" title="Object line width" type="number" value="1" />
+
+                <div class="properties__group-path">
+                    <input class="properties__close-path" id="close-path" type="checkbox" />
+                    <label for="close-path" title="Close object path"></label>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="properties__group-shape">
+                <label for="line-dash">Line dash</label>
+                <input autocomplete="off" class="properties__line-dash" id="line-dash"
+                    title="Object line dash (comma-separated numbers)" type="text" value="" />
+            </div>
+
+            <br />
+
+            <div class="properties__group-shape">
+                <label for="line-join">Line join</label>
+                <select class="properties__line-join" id="line-join">
+                    <option value="round">round</option>
+                    <option value="bevel">bevel</option>
+                    <option selected value="miter">miter</option>
+                </select>
+            </div>
+
+            <br />
+
+            <div class="properties__group-shape">
+                <label for="miter-limit">Miter limit</label>
+                <input autocomplete="off" class="properties__miter-limit" id="miter-limit"
+                    min="0" step="any" title="Miter limit for miter joins" type="number" value="10" />
+            </div>
+
+            <br />
+
+            <div class="properties__group-shape">
+                <label for="line-join">Line cap</label>
+                <select class="properties__line-cap" id="line-cap">
+                    <option selected value="butt">butt</option>
+                    <option value="round">round</option>
+                    <option value="square">square</option>
+                </select>
+            </div>
+
+            <br />
+
+            <div class="properties__group-text">
+                <label for="text-align">Text alignment</label>
+                <select class="properties__text-align" id="text-align">
+                    <option selected value="start">start</option>
+                    <option value="end">end</option>
+                    <option value="center">center</option>
+                    <option value="left">left</option>
+                    <option value="right">right</option>
+                </select>
+            </div>
+
+            <br />
+
+            <div class="properties__group-text">
+                <label for="text-baseline">Text baseline</label>
+                <select class="properties__text-baseline" id="text-baseline">
+                    <option selected value="alphabetic">alphabetic</option>
+                    <option value="top">top</option>
+                    <option value="hanging">hanging</option>
+                    <option value="middle">middle</option>
+                    <option value="ideographic">ideographic</option>
+                    <option value="bottom">bottom</option>
+                </select>
+            </div>
+
+            <br />
+
+            <div class="properties__group-text">
+                <label for="text">Text</label>
+                <input autocomplete="off" class="properties__text" id="text"
+                    pattern="[\x20-\x7E]*" title="Object text" type="text" value="text" />
+            </div>
+
+            <br />
+
+            <div class="properties__group-text">
+                <label for="font">Font</label>
+                <input autocomplete="off" class="properties__font" id="font"
+                    pattern="[\x20-\x7E]*" title="Object font" type="text" value="30px Arial" />
+            </div>
+
+            <div class="clear"></div>
+        </div>
+
+        <div class="view">
+            <label for="grid-spacing">Grid spacing</label>
+            <input autocomplete="off" class="view__grid-spacing" id="grid-spacing"
+                min="1" step="1" title="Grid spacing" type="number" value="16" />
+
+            <input autocomplete="off" checked class="view__grid" id="grid" type="checkbox" />
+            <label for="grid" title="Show grid"></label>
+
+            <input autocomplete="off" checked class="view__help" id="help" type="checkbox" />
+            <label for="help" title="Show help"></label>
+
+            <div class="view__commands">
+                <table>
+                    <tr>
+                        <th>Command</th>
+                        <th>Shortcut</th>
+                    </tr>
+                    <tr>
+                        <td>Pan canvas</td>
+                        <td>Middle Mouse</td>
+                    </tr>
+                    <tr>
+                        <td>Zoom canvas</td>
+                        <td>Mouse wheel</td>
+                    </tr>
+                    <tr>
+                        <td>Disable snap</td>
+                        <td>Hold shift/Caps lock</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>Select object</td>
+                        <td>Right Mouse</td>
+                    </tr>
+                    <tr>
+                        <td>Focus object</td>
+                        <td>Z</td>
+                    </tr>
+                    <tr>
+                        <td>Move object</td>
+                        <td>G</td>
+                    </tr>
+                    <tr>
+                        <td>Scale object</td>
+                        <td>S</td>
+                    </tr>
+                    <tr>
+                        <td>Rotate object</td>
+                        <td>R</td>
+                    </tr>
+                    <tr>
+                        <td>Delete object</td>
+                        <td>Delete</td>
+                    </tr>
+                    <tr>
+                        <td>Duplicate object</td>
+                        <td>Shift+D</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>Move node/Handle</td>
+                        <td>LMB on corner</td>
+                    </tr>
+                    <tr>
+                        <td>Create/Move node</td>
+                        <td>LMB on side</td>
+                    </tr>
+                    <tr>
+                        <td>Create/Move handle</td>
+                        <td>Shift+LMB on side</td>
+                    </tr>
+                    <tr>
+                        <td>Delete node/Handle</td>
+                        <td>Ctrl+LMB</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>Undo</td>
+                        <td>Ctrl+Z</td>
+                    </tr>
+                    <tr>
+                        <td>Redo</td>
+                        <td>Ctrl+Y</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="title">
+            <a href="https://donitz.itch.io/canvas-draw-2d" target="_blank">Canvas Draw 2D</a>
+
+            <br />
+
+            <small class="title__version"></small>
+        </div>
+    </body>
+</html>
